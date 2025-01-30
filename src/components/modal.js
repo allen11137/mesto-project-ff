@@ -28,3 +28,4 @@ function closeModalByOverlay(evt) {
 		closeModal(evt.currentTarget)
 	}
 }
+
