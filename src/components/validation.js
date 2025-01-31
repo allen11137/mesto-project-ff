@@ -1,14 +1,5 @@
 export { clearValidation, enableValidation};
 
-export const validationConfig  = {
-	formSelector: ".popup__form",
-	inputSelector: ".popup__input",
-	submitButtonSelector: ".popup__button",
-	inactiveButtonClass: "popup__button_disabled",
-	inputErrorClass: "popup__input_type_error",
-	errorClass: "popup__error_visible",
-};
-
 const enableValidation = (validationConfig ) => {
 	const forms = Array.from(document.querySelectorAll(validationConfig.formSelector));
 	forms.forEach((form) => initializeFormValidation(form, validationConfig ));

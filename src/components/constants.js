@@ -16,7 +16,7 @@ export const profileSubtitle = profileDetails.querySelector('.profile__descripti
 export const editProfileButton = profileDetails.querySelector('.profile__edit-button')
 export const avatarEditPopup = document.querySelector('.popup_type_avatar')
 export const avatarEditForm = document.querySelector('.popup__form[name="edit-avatar"]')
-export const avatarUrlInput = avatarEditForm.querySelector('.popup__input_type_avatar')
+export const avatarUrlInput = document.querySelector('.popup__input_type_avatar')
 export const userAvatar = document.querySelector('.profile__image')
 export const imagePopup = document.querySelector('.popup_type_image')
 export const imageElement = imagePopup.querySelector('.popup__image')

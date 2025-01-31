@@ -1,6 +1,6 @@
 import { createNewCard, removeCard, toggleLikeCallback } from './components/card.js';
 import { createNewCardApi, updateUserData, fetchInitialCards, fetchUserData, updateUserAvatar } from './components/api.js';
-import { clearValidation, enableValidation, validationConfig} from './components/validation.js';
+import { clearValidation, enableValidation } from './components/validation.js';
 import { closeModal, openModal } from './components/modal.js';
 import './pages/index.css';
 
@@ -28,6 +28,15 @@ import {
   imageElement,
   imageCaptionElement,
 } from './components/constants.js';
+
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
 
 let sessionUserId = null;
 
@@ -57,74 +66,65 @@ const renderLoading = (isLoading, formElement) => {
   }
 };
 
-
 function handleProfileSubmit(event) {
-  function handleProfileSubmit(event) {
-    event.preventDefault();
-    renderLoading(true, profileEditForm);
-    
-    updateUserData(profileNameInput.value, profileAboutInput.value)
-      .then(() => {
-        return fetchUserData(); 
-      })
-      .then((userData) => {
-        profileHeader.textContent = userData.name;
-        profileSubtitle.textContent = userData.about;
-        sessionUserId = userData._id;
-        closeModal(profileEditPopup);
-      })
-      .catch(console.error)
-      .finally(() => renderLoading(false, profileEditForm));
-  }
-  
-}
-
-function handleAddCardSubmit(event) {
   event.preventDefault();
-  renderLoading(true, createCardForm);
-
-  createNewCardApi(cardTitleInput.value, cardImageInput.value)
-    .then((card) => {
-   
-      const newCard = createNewCard(
-        card._id,
-        card.name,
-        card.link,
-        removeCard,
-        card.likes,
-        toggleLikeCallback,
-        openImagePopup,
-        card.owner._id, 
-        sessionUserId
-      );
-      appendCardToContainer(newCard, true);
-      createCardForm.reset();
-      closeModal(createCardPopup);
+  renderLoading(true, profileEditForm);
+  
+  updateUserData(profileNameInput.value, profileAboutInput.value)
+    .then((userData) => {
+      profileHeader.textContent = userData.name;
+      profileSubtitle.textContent = userData.about;
+      closeModal(profileEditPopup);
     })
     .catch(console.error)
-    .finally(() => renderLoading(false, createCardForm));
+    .finally(() => renderLoading(false, profileEditForm));
 }
+
+    function handleAddCardSubmit(event) {
+      event.preventDefault();
+      renderLoading(true, createCardForm);
+      
+      createNewCardApi(cardTitleInput.value, cardImageInput.value)
+        .then((card) => {
+          console.log('Карточка создана на сервере:', card);
+    
+          const newCard = createNewCard(
+            card, 
+            { 
+              removeCard, 
+              toggleLikeCallback, 
+              openImagePopup, 
+              userId: sessionUserId 
+            }
+          );
+    
+          if (!newCard) {
+            console.error('Ошибка: карточка не создана');
+            return;
+          }
+    
+          appendCardToContainer(newCard, true);
+          createCardForm.reset();
+          closeModal(createCardPopup);
+        })
+        .catch(err => console.error('Ошибка при создании карточки:', err))
+        .finally(() => renderLoading(false, createCardForm));
+    }
+    
 
 function handleEditAvatarSubmit(event) {
   event.preventDefault();
   renderLoading(true, avatarEditForm);
   
   updateUserAvatar(avatarUrlInput.value)
-    .then(() => {
-      return fetchUserData(); 
-    })
-    .then((userData) => {
-      userAvatar.style.backgroundImage = `url(${userData.avatar})`;
-      sessionUserId = userData._id;
+    .then(({ avatar }) => {
+      userAvatar.style.backgroundImage = `url(${avatar})`;
       avatarEditForm.reset();
       closeModal(avatarEditPopup);
     })
     .catch(console.error)
     .finally(() => renderLoading(false, avatarEditForm));
 }
-
-
-
 
 editProfileButton.addEventListener('click', () => {
   profileNameInput.value = profileHeader.textContent;
@@ -164,24 +164,30 @@ Promise.all([fetchUserData(), fetchInitialCards()])
     profileHeader.textContent = userData.name;
     profileSubtitle.textContent = userData.about;
     userAvatar.style.backgroundImage = `url(${userData.avatar})`;
-
+    
     initialCards.forEach((card) => {
       const newCard = createNewCard(
-        card._id,
-        card.name,
-        card.link,
-        removeCard,
-        card.likes,
-        toggleLikeCallback,
-        openImagePopup,
-        card.owner._id,
-        sessionUserId
+        { 
+          _id: card._id, 
+          name: card.name, 
+          link: card.link, 
+          likes: card.likes, 
+          ownerId: card.owner._id 
+        }, 
+        { 
+          removeCard, 
+          toggleLikeCallback, 
+          openImagePopup, 
+          userId: sessionUserId 
+        }
       );
       appendCardToContainer(newCard);
     });
   })
   .catch(console.error);
 
-
-
 enableValidation(validationConfig);
+
+
+
+
