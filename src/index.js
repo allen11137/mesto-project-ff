@@ -59,17 +59,24 @@ const renderLoading = (isLoading, formElement) => {
 
 
 function handleProfileSubmit(event) {
-  event.preventDefault();
-  renderLoading(true, profileEditForm);
+  function handleProfileSubmit(event) {
+    event.preventDefault();
+    renderLoading(true, profileEditForm);
+    
+    updateUserData(profileNameInput.value, profileAboutInput.value)
+      .then(() => {
+        return fetchUserData(); 
+      })
+      .then((userData) => {
+        profileHeader.textContent = userData.name;
+        profileSubtitle.textContent = userData.about;
+        sessionUserId = userData._id;
+        closeModal(profileEditPopup);
+      })
+      .catch(console.error)
+      .finally(() => renderLoading(false, profileEditForm));
+  }
   
-  updateUserData(profileNameInput.value, profileAboutInput.value)
-    .then((userData) => {
-      profileHeader.textContent = userData.name;
-      profileSubtitle.textContent = userData.about;
-      closeModal(profileEditPopup);
-    })
-    .catch(console.error)
-    .finally(() => renderLoading(false, profileEditForm));
 }
 
 function handleAddCardSubmit(event) {
@@ -78,8 +85,7 @@ function handleAddCardSubmit(event) {
 
   createNewCardApi(cardTitleInput.value, cardImageInput.value)
     .then((card) => {
-      console.log(`Созданная карточка. ID владельца: ${card.owner._id}, sessionUserId: ${sessionUserId}`);
-      
+   
       const newCard = createNewCard(
         card._id,
         card.name,
@@ -88,7 +94,7 @@ function handleAddCardSubmit(event) {
         card.likes,
         toggleLikeCallback,
         openImagePopup,
-        card.owner._id, // ID владельца из ответа сервера
+        card.owner._id, 
         sessionUserId
       );
       appendCardToContainer(newCard, true);
@@ -99,20 +105,24 @@ function handleAddCardSubmit(event) {
     .finally(() => renderLoading(false, createCardForm));
 }
 
-
 function handleEditAvatarSubmit(event) {
   event.preventDefault();
   renderLoading(true, avatarEditForm);
   
   updateUserAvatar(avatarUrlInput.value)
-    .then(({ avatar }) => {
-      userAvatar.style.backgroundImage = `url(${avatar})`;
+    .then(() => {
+      return fetchUserData(); 
+    })
+    .then((userData) => {
+      userAvatar.style.backgroundImage = `url(${userData.avatar})`;
+      sessionUserId = userData._id;
       avatarEditForm.reset();
       closeModal(avatarEditPopup);
     })
     .catch(console.error)
     .finally(() => renderLoading(false, avatarEditForm));
 }
+
 
 
 
@@ -150,13 +160,12 @@ avatarEditForm.addEventListener('submit', handleEditAvatarSubmit);
 
 Promise.all([fetchUserData(), fetchInitialCards()])
   .then(([userData, initialCards]) => {
-    sessionUserId = userData._id; // Сначала устанавливаем userId
-    console.log("sessionUserId (загружен с сервера):", sessionUserId);
+    sessionUserId = userData._id;
+    profileHeader.textContent = userData.name;
+    profileSubtitle.textContent = userData.about;
+    userAvatar.style.backgroundImage = `url(${userData.avatar})`;
 
     initialCards.forEach((card) => {
-      
-      console.log(`Карточка загружена. ownerId: ${card.owner._id}, ожидается: ${sessionUserId}`);
-
       const newCard = createNewCard(
         card._id,
         card.name,
@@ -172,7 +181,6 @@ Promise.all([fetchUserData(), fetchInitialCards()])
     });
   })
   .catch(console.error);
-
 
 
 

@@ -26,8 +26,7 @@ export function createNewCard(cardId, title, cardImageLink, removeCard, likes, t
 	if (userHasLiked) {
 		buttonOfLike.classList.add('card__like-button_is-active')
 	}
-	console.log(`userId: ${userId}, ownerId: ${ownerId}`);
-    console.log(`userId type: ${typeof userId}, ownerId type: ${typeof ownerId}`);
+	
 	if (userId !== ownerId) {
 		console.log('Removing delete button')
 		buttonDelete.remove()
