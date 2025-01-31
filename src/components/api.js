@@ -24,7 +24,7 @@ export const fetchInitialCards = () => {
 	}).then(getResponse)
 }
 
-export const createNewCard = (name, link) => {
+export const createNewCardApi = (name, link) => {
 	return fetch(`${config.baseUrl}/cards`, {
 		method: 'POST',
 		headers: config.headers,

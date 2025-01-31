@@ -1,5 +1,5 @@
 import { createNewCard, removeCard, toggleLikeCallback } from './components/card.js';
-import { updateUserData, fetchInitialCards, fetchUserData, updateUserAvatar } from './components/api.js';
+import { createNewCardApi, updateUserData, fetchInitialCards, fetchUserData, updateUserAvatar } from './components/api.js';
 import { clearValidation, enableValidation, validationConfig} from './components/validation.js';
 import { closeModal, openModal } from './components/modal.js';
 import './pages/index.css';
@@ -75,18 +75,20 @@ function handleProfileSubmit(event) {
 function handleAddCardSubmit(event) {
   event.preventDefault();
   renderLoading(true, createCardForm);
-  
-  createNewCard(cardTitleInput.value, cardImageInput.value)
+
+  createNewCardApi(cardTitleInput.value, cardImageInput.value)
     .then((card) => {
+      console.log(`Созданная карточка. ID владельца: ${card.owner._id}, sessionUserId: ${sessionUserId}`);
+      
       const newCard = createNewCard(
         card._id,
-        cardTitleInput.value,
-        cardImageInput.value,
+        card.name,
+        card.link,
         removeCard,
         card.likes,
         toggleLikeCallback,
         openImagePopup,
-        card.owner._id,
+        card.owner._id, // ID владельца из ответа сервера
         sessionUserId
       );
       appendCardToContainer(newCard, true);
@@ -96,6 +98,7 @@ function handleAddCardSubmit(event) {
     .catch(console.error)
     .finally(() => renderLoading(false, createCardForm));
 }
+
 
 function handleEditAvatarSubmit(event) {
   event.preventDefault();
@@ -147,12 +150,13 @@ avatarEditForm.addEventListener('submit', handleEditAvatarSubmit);
 
 Promise.all([fetchUserData(), fetchInitialCards()])
   .then(([userData, initialCards]) => {
-    sessionUserId = userData._id;
-    profileHeader.textContent = userData.name;
-    profileSubtitle.textContent = userData.about;
-    userAvatar.style.backgroundImage = `url(${userData.avatar})`;
-    
+    sessionUserId = userData._id; // Сначала устанавливаем userId
+    console.log("sessionUserId (загружен с сервера):", sessionUserId);
+
     initialCards.forEach((card) => {
+      
+      console.log(`Карточка загружена. ownerId: ${card.owner._id}, ожидается: ${sessionUserId}`);
+
       const newCard = createNewCard(
         card._id,
         card.name,
@@ -168,6 +172,7 @@ Promise.all([fetchUserData(), fetchInitialCards()])
     });
   })
   .catch(console.error);
+
 
 
 

@@ -11,7 +11,7 @@ export function createNewCard(cardId, title, cardImageLink, removeCard, likes, t
 	card.querySelector('.card__title').textContent = title
 	likesCount.textContent = likes.length
 
-	const deleteButton = card.querySelector('.card__delete-button')
+	const buttonDelete = card.querySelector('.card__delete-button')
 
 	cardImage.addEventListener('click', () => {
 		openImagePopup(cardImageLink, title)
@@ -26,18 +26,20 @@ export function createNewCard(cardId, title, cardImageLink, removeCard, likes, t
 	if (userHasLiked) {
 		buttonOfLike.classList.add('card__like-button_is-active')
 	}
-
-	if (ownerId !== userId) {
+	console.log(`userId: ${userId}, ownerId: ${ownerId}`);
+    console.log(`userId type: ${typeof userId}, ownerId type: ${typeof ownerId}`);
+	if (userId !== ownerId) {
 		console.log('Removing delete button')
-		deleteButton.remove()
+		buttonDelete.remove()
 	} else {
-		deleteButton.addEventListener('click', () => {
+		buttonDelete.addEventListener('click', () => {
 			removeCard(card, cardId)
 		})
 	}
 
 	return card
-}
+}	
+
 
 export function toggleLikeCallback(buttonOfLike, cardId, likesCount) {
 	const isLiked = buttonOfLike.classList.contains('card__like-button_is-active')
@@ -60,4 +62,10 @@ export function removeCard(card, cardId) {
 			console.log(`Ошибка во время удаления карточки: ${err}`)
 		})
 }
+
+
+
+
+
+
 
