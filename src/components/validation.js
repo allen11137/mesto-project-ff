@@ -35,19 +35,34 @@ const resetInputError = (form, input, validationConfig) => {
   }
 };
 
+const validateUrl = (input) => {
+  const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+  return urlPattern.test(input.value);
+};
+
 const validateInput = (form, input, validationConfig) => {
   const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
   const minLength = input.getAttribute("minlength") || 2;
   const maxLength = input.getAttribute("maxlength") || 200;
 
-  if (input.value.length < minLength) {
-    input.setCustomValidity(`Текст должен быть не короче ${minLength} символов.`);
-  } else if (input.value.length > maxLength) {
-    input.setCustomValidity(`Текст должен быть не длиннее ${maxLength} символов.`);
-  } else if (!pattern.test(input.value)) {
-    input.setCustomValidity("Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.");
+  if (input.type === "url") {
+    
+    if (!validateUrl(input)) {
+      input.setCustomValidity("Введите URL.");
+    } else {
+      input.setCustomValidity("");
+    }
   } else {
-    input.setCustomValidity("");
+   
+    if (input.value.length < minLength) {
+      input.setCustomValidity(`Текст должен быть не короче ${minLength} символов.`);
+    } else if (input.value.length > maxLength) {
+      input.setCustomValidity(`Текст должен быть не длиннее ${maxLength} символов.`);
+    } else if (!pattern.test(input.value)) {
+      input.setCustomValidity("Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.");
+    } else {
+      input.setCustomValidity("");
+    }
   }
 
   if (input.validationMessage) {
