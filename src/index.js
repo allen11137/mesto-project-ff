@@ -27,6 +27,7 @@ import {
   imagePopup,
   imageElement,
   imageCaptionElement,
+  cardTitleError
 } from './components/constants.js';
 
 const validationConfig = {
@@ -80,21 +81,41 @@ function handleProfileSubmit(event) {
     .finally(() => renderLoading(false, profileEditForm));
 }
 
+
+    function validateCardTitleInput() {
+      const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
+      if (!pattern.test(cardTitleInput.value)) {
+        cardTitleInput.setCustomValidity("Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы");
+      } else {
+        cardTitleInput.setCustomValidity("");
+      }
+      cardTitleError.textContent = cardTitleInput.validationMessage;
+    }
+    
+   
+    cardTitleInput.addEventListener("input", validateCardTitleInput);
+    
     function handleAddCardSubmit(event) {
       event.preventDefault();
+      validateCardTitleInput();
+    
+      if (!createCardForm.checkValidity()) {
+        return; 
+      }
+    
       renderLoading(true, createCardForm);
-      
+    
       createNewCardApi(cardTitleInput.value, cardImageInput.value)
         .then((card) => {
           console.log('Карточка создана на сервере:', card);
     
           const newCard = createNewCard(
-            card, 
-            { 
-              removeCard, 
-              toggleLikeCallback, 
-              openImagePopup, 
-              userId: sessionUserId 
+            card,
+            {
+              removeCard,
+              toggleLikeCallback,
+              openImagePopup,
+              userId: sessionUserId
             }
           );
     
@@ -110,7 +131,6 @@ function handleProfileSubmit(event) {
         .catch(err => console.error('Ошибка при создании карточки:', err))
         .finally(() => renderLoading(false, createCardForm));
     }
-    
 
 function handleEditAvatarSubmit(event) {
   event.preventDefault();
@@ -167,13 +187,7 @@ Promise.all([fetchUserData(), fetchInitialCards()])
     
     initialCards.forEach((card) => {
       const newCard = createNewCard(
-        { 
-          _id: card._id, 
-          name: card.name, 
-          link: card.link, 
-          likes: card.likes, 
-          ownerId: card.owner._id 
-        }, 
+        card,
         { 
           removeCard, 
           toggleLikeCallback, 
@@ -183,11 +197,8 @@ Promise.all([fetchUserData(), fetchInitialCards()])
       );
       appendCardToContainer(newCard);
     });
+    
   })
   .catch(console.error);
 
 enableValidation(validationConfig);
-
-
-
-

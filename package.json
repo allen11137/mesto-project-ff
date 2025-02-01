@@ -4,7 +4,10 @@
   "description": "Ссылка на репозиторий: https://github.com/allen11137/mesto-project-ff",
   "main": "index.js",
   "dependencies": {
-    "core-js": "^3.37.1"
+    "core-js": "^3.37.1",
+    "glob": "^11.0.1",
+    "inflight": "^1.0.6",
+    "rimraf": "^6.0.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
