@@ -81,19 +81,6 @@ function handleProfileSubmit(event) {
     .finally(() => renderLoading(false, profileEditForm));
 }
 
-
-    function validateCardTitleInput() {
-      const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
-      if (!pattern.test(cardTitleInput.value)) {
-        cardTitleInput.setCustomValidity("Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы");
-      } else {
-        cardTitleInput.setCustomValidity("");
-      }
-      cardTitleError.textContent = cardTitleInput.validationMessage;
-    }
-    
-   
-    cardTitleInput.addEventListener("input", validateCardTitleInput);
     
     function handleAddCardSubmit(event) {
       event.preventDefault();
