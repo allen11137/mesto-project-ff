@@ -1,3 +1,4 @@
+
 export { clearValidation, enableValidation };
 
 const enableValidation = (validationConfig) => {
@@ -35,11 +36,6 @@ const resetInputError = (form, input, validationConfig) => {
   }
 };
 
-const validateUrl = (input) => {
-  const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-  return urlPattern.test(input.value);
-};
-
 const validateInput = (form, input, validationConfig) => {
   const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
   const minLength = input.getAttribute("minlength") || 2;
@@ -72,6 +68,8 @@ const validateInput = (form, input, validationConfig) => {
   }
 };
 
+
+
 const initializeFormValidation = (form, validationConfig) => {
   const inputs = Array.from(form.querySelectorAll(validationConfig.inputSelector));
   const submitButton = form.querySelector(validationConfig.submitButtonSelector);
@@ -96,3 +94,5 @@ const updateButtonState = (inputs, submitButton, validationConfig) => {
     submitButton.classList.remove(validationConfig.inactiveButtonClass);
   }
 };
+
+

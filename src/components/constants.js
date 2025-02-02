@@ -21,4 +21,4 @@ export const userAvatar = document.querySelector('.profile__image')
 export const imagePopup = document.querySelector('.popup_type_image')
 export const imageElement = imagePopup.querySelector('.popup__image')
 export const imageCaptionElement = imagePopup.querySelector('.popup__caption')
-export const cardTitleError = createCardForm.querySelector(".card-name-input-error")
+ 

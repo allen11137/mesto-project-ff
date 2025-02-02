@@ -1,3 +1,4 @@
+
 import { createNewCard, removeCard, toggleLikeCallback } from './components/card.js';
 import { createNewCardApi, updateUserData, fetchInitialCards, fetchUserData, updateUserAvatar } from './components/api.js';
 import { clearValidation, enableValidation } from './components/validation.js';
