@@ -1,20 +1,16 @@
-// validation.js
-
-// Функция для валидации URL
 
 const validateUrl = (form, input, validationConfig) => {
   const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
   let errorMessage = "";
 
-  console.log("URL input value:", input.value); // Логируем значение input
+  console.log("URL input value:", input.value); 
 
   if (input.value.trim() !== "" && !urlPattern.test(input.value.trim())) {
     errorMessage = "Введите корректный URL.";
-    console.log("URL validation failed for:", input.value); // Логируем, если URL не совпал
+    console.log("URL validation failed for:", input.value); 
   }
 
-  input.setCustomValidity(errorMessage); // Устанавливаем ошибку (или очищаем её)
-  /*input.reportValidity(); // Принудительно вызываем проверку валидации браузером */
+  input.setCustomValidity(errorMessage); 
 
   if (errorMessage) {
     displayInputError(form, input, errorMessage, validationConfig);
@@ -68,7 +64,7 @@ const validateInput = (form, input, validationConfig) => {
 
     let errorMessage = "";
 
-    console.log("Input value:", input.value); // Логируем значение input
+    console.log("Input value:", input.value); 
 
     if (input.value.length < minLength) {
       errorMessage = `Текст должен быть не короче ${minLength} символов.`;
@@ -76,11 +72,11 @@ const validateInput = (form, input, validationConfig) => {
       errorMessage = `Текст должен быть не длиннее ${maxLength} символов.`;
     } else if (input.value.trim() !== "" && !pattern.test(input.value.trim())) {
       errorMessage = "Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.";
-      console.log("Pattern validation failed for:", input.value); // Логируем, если паттерн не совпал
+      console.log("Pattern validation failed for:", input.value); 
     }
 
-    input.setCustomValidity(errorMessage); // Устанавливаем ошибку (или очищаем её)
-    /*input.reportValidity(); // Принудительно вызываем проверку валидации браузером */
+    input.setCustomValidity(errorMessage); 
+   
 
     if (errorMessage) {
       displayInputError(form, input, errorMessage, validationConfig);
@@ -115,4 +111,4 @@ const updateButtonState = (inputs, submitButton, validationConfig) => {
   }
 };
 
-export { clearValidation, enableValidation, validateUrl };
+export { clearValidation, enableValidation};
