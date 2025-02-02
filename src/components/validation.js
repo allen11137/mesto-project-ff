@@ -1,114 +1,83 @@
+const displayInputError = (form, input, errorText, config) => {
+  const error = form.querySelector(`.${input.id}-error`);
+  input.classList.add(config.inputErrorClass);
+  error.textContent = errorText;
+  error.classList.add(config.errorClass);
+};
 
-const validateUrl = (form, input, validationConfig) => {
-  const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-  let errorMessage = "";
+const resetInputError = (form, input, config) => {
+  const error = form.querySelector(`.${input.id}-error`);
+  input.classList.remove(config.inputErrorClass);
+  error.classList.remove(config.errorClass);
+  error.textContent = "";
+};
 
-  console.log("URL input value:", input.value); 
-
-  if (input.value.trim() !== "" && !urlPattern.test(input.value.trim())) {
-    errorMessage = "Введите корректный URL.";
-    console.log("URL validation failed for:", input.value); 
-  }
-
-  input.setCustomValidity(errorMessage); 
-
-  if (errorMessage) {
-    displayInputError(form, input, errorMessage, validationConfig);
+const validateInput = (form, input, config) => {
+  if (input.validity.patternMismatch) {
+    input.setCustomValidity(input.dataset.errorMessage);
   } else {
-    resetInputError(form, input, validationConfig);
-  }
-};
-
-const enableValidation = (validationConfig) => {
-  const forms = Array.from(document.querySelectorAll(validationConfig.formSelector));
-  forms.forEach((form) => initializeFormValidation(form, validationConfig));
-};
-
-const clearValidation = (form, validationConfig) => {
-  const inputs = Array.from(form.querySelectorAll(validationConfig.inputSelector));
-  const submitButton = form.querySelector(validationConfig.submitButtonSelector);
-  inputs.forEach((input) => resetInputError(form, input, validationConfig));
-  updateButtonState(inputs, submitButton, validationConfig);
-};
-
-const displayInputError = (form, input, errorMessage, validationConfig) => {
-  const errorElement = form.querySelector(`.${input.id}-error`);
-  if (!errorElement) {
-    console.error(`Элемент с ошибкой для ${input.id} не найден`);
-    return;
-  }
-  input.classList.add(validationConfig.inputErrorClass);
-  errorElement.textContent = errorMessage;
-  errorElement.classList.add(validationConfig.errorClass);
-};
-
-const resetInputError = (form, input, validationConfig) => {
-  const errorElement = form.querySelector(`.${input.id}-error`);
-  if (errorElement) {
-    input.classList.remove(validationConfig.inputErrorClass);
     input.setCustomValidity("");
-    errorElement.classList.remove(validationConfig.errorClass);
-    errorElement.textContent = "";
+  }
+
+  if (!input.validity.valid) {
+    displayInputError(form, input, input.validationMessage, config);
   } else {
-    console.error(`Элемент с ошибкой для ${input.id} не найден`);
+    resetInputError(form, input, config);
   }
 };
 
-const validateInput = (form, input, validationConfig) => {
-  if (input.type === "url" || input.classList.contains("url-input")) {
-    validateUrl(form, input, validationConfig); // Вызов validateUrl
-  } else {
-    const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
-    const minLength = parseInt(input.getAttribute("minlength")) || 2;
-    const maxLength = parseInt(input.getAttribute("maxlength")) || 200;
-
-    let errorMessage = "";
-
-    console.log("Input value:", input.value); 
-
-    if (input.value.length < minLength) {
-      errorMessage = `Текст должен быть не короче ${minLength} символов.`;
-    } else if (input.value.length > maxLength) {
-      errorMessage = `Текст должен быть не длиннее ${maxLength} символов.`;
-    } else if (input.value.trim() !== "" && !pattern.test(input.value.trim())) {
-      errorMessage = "Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.";
-      console.log("Pattern validation failed for:", input.value); 
-    }
-
-    input.setCustomValidity(errorMessage); 
-   
-
-    if (errorMessage) {
-      displayInputError(form, input, errorMessage, validationConfig);
-    } else {
-      resetInputError(form, input, validationConfig);
-    }
-  }
-};
-
-const initializeFormValidation = (form, validationConfig) => {
-  const inputs = Array.from(form.querySelectorAll(validationConfig.inputSelector));
-  const submitButton = form.querySelector(validationConfig.submitButtonSelector);
-  updateButtonState(inputs, submitButton, validationConfig);
-
+const setupFormValidation = (form, config) => {
+  const inputs = Array.from(form.querySelectorAll(config.inputSelector));
+  const button = form.querySelector(config.submitButtonSelector);
+  updateButtonState(inputs, button, config);
   inputs.forEach((input) => {
     input.addEventListener("input", () => {
-      validateInput(form, input, validationConfig);
-      updateButtonState(inputs, submitButton, validationConfig);
+      validateInput(form, input, config);
+      updateButtonState(inputs, button, config);
     });
   });
 };
 
-const containsInvalidInput = (inputs) => inputs.some((input) => !input.validity.valid);
+const enableValidation = (config) => {
+  const forms = Array.from(document.querySelectorAll(config.formSelector));
+  forms.forEach((form) => {
+    form.addEventListener("submit", (evt) => {
+      evt.preventDefault();
+    });
+    setupFormValidation(form, config);
+  });
+};
 
-const updateButtonState = (inputs, submitButton, validationConfig) => {
-  if (containsInvalidInput(inputs)) {
-    submitButton.disabled = true;
-    submitButton.classList.add(validationConfig.inactiveButtonClass);
+const isInputInvalid = (inputs) => {
+  return inputs.some((input) => !input.validity.valid);
+};
+
+const updateButtonState = (inputs, button, config) => {
+  if (isInputInvalid(inputs)) {
+    button.disabled = true;
+    button.classList.add(config.inactiveButtonClass);
   } else {
-    submitButton.disabled = false;
-    submitButton.classList.remove(validationConfig.inactiveButtonClass);
+    button.disabled = false;
+    button.classList.remove(config.inactiveButtonClass);
   }
 };
 
-export { clearValidation, enableValidation};
+ function clearValidation(form, config) {
+  const inputs = Array.from(form.querySelectorAll(config.inputSelector));
+  inputs.forEach((input) => {
+    const error = form.querySelector(`.${input.id}-error`);
+    input.classList.remove(config.inputErrorClass);
+    error.textContent = "";
+    error.classList.remove(config.errorClass);
+  });
+
+  const button = form.querySelector(config.submitButtonSelector);
+  button.classList.add(config.inactiveButtonClass);
+  button.disabled = true;
+}
+
+export { enableValidation, clearValidation };
+
+
+
+
