@@ -1,3 +1,17 @@
+const isInputInvalid = (inputs) => {
+  return inputs.some((input) => !input.validity.valid);
+};
+
+const updateButtonState = (inputs, button, config) => {
+  if (isInputInvalid(inputs)) {
+    button.disabled = true;
+    button.classList.add(config.inactiveButtonClass);
+  } else {
+    button.disabled = false;
+    button.classList.remove(config.inactiveButtonClass);
+  }
+};
+
 const displayInputError = (form, input, errorText, config) => {
   const error = form.querySelector(`.${input.id}-error`);
   input.classList.add(config.inputErrorClass);
@@ -48,21 +62,7 @@ const enableValidation = (config) => {
   });
 };
 
-const isInputInvalid = (inputs) => {
-  return inputs.some((input) => !input.validity.valid);
-};
-
-const updateButtonState = (inputs, button, config) => {
-  if (isInputInvalid(inputs)) {
-    button.disabled = true;
-    button.classList.add(config.inactiveButtonClass);
-  } else {
-    button.disabled = false;
-    button.classList.remove(config.inactiveButtonClass);
-  }
-};
-
- function clearValidation(form, config) {
+function clearValidation(form, config) {
   const inputs = Array.from(form.querySelectorAll(config.inputSelector));
   inputs.forEach((input) => {
     const error = form.querySelector(`.${input.id}-error`);
@@ -77,7 +77,3 @@ const updateButtonState = (inputs, button, config) => {
 }
 
 export { enableValidation, clearValidation };
-
-
-
-
