@@ -42,6 +42,7 @@ const validationConfig = {
 
 let sessionUserId = null;
 
+// Открытие попапа с изображением
 function openImagePopup(imageSrc, caption) {
   imageElement.src = imageSrc;
   imageElement.alt = caption;
@@ -49,7 +50,8 @@ function openImagePopup(imageSrc, caption) {
   openModal(imagePopup);
 }
 
-function appendCardToContainer(cardElement, toStart) {
+// Добавление карточки в контейнер
+function appendCardToContainer(cardElement, toStart = false) {
   if (toStart) {
     cardListContainer.prepend(cardElement);
   } else {
@@ -57,6 +59,7 @@ function appendCardToContainer(cardElement, toStart) {
   }
 }
 
+// Управление состоянием кнопки "Сохранить"
 const renderLoading = (isLoading, formElement) => {
   const buttonElement = formElement.querySelector('.popup__button');
   if (isLoading) {
@@ -68,6 +71,7 @@ const renderLoading = (isLoading, formElement) => {
   }
 };
 
+// Обработчик отправки формы профиля
 function handleProfileSubmit(event) {
   event.preventDefault();
   renderLoading(true, profileEditForm);
@@ -78,48 +82,52 @@ function handleProfileSubmit(event) {
       profileSubtitle.textContent = userData.about;
       closeModal(profileEditPopup);
     })
-    .catch(console.error)
+    .catch((err) => {
+      console.error('Ошибка при обновлении профиля:', err);
+      // Можно добавить уведомление пользователю
+    })
     .finally(() => renderLoading(false, profileEditForm));
 }
 
-    
-    function handleAddCardSubmit(event) {
-      event.preventDefault();
-      validateCardTitleInput();
-    
-      if (!createCardForm.checkValidity()) {
-        return; 
-      }
-    
-      renderLoading(true, createCardForm);
-    
-      createNewCardApi(cardTitleInput.value, cardImageInput.value)
-        .then((card) => {
-          console.log('Карточка создана на сервере:', card);
-    
-          const newCard = createNewCard(
-            card,
-            {
-              removeCard,
-              toggleLikeCallback,
-              openImagePopup,
-              userId: sessionUserId
-            }
-          );
-    
-          if (!newCard) {
-            console.error('Ошибка: карточка не создана');
-            return;
-          }
-    
-          appendCardToContainer(newCard, true);
-          createCardForm.reset();
-          closeModal(createCardPopup);
-        })
-        .catch(err => console.error('Ошибка при создании карточки:', err))
-        .finally(() => renderLoading(false, createCardForm));
-    }
+// Обработчик отправки формы добавления карточки
+function handleAddCardSubmit(event) {
+  event.preventDefault();
 
+  if (!createCardForm.checkValidity()) {
+    return; // Если форма не валидна, прекращаем выполнение
+  }
+
+  renderLoading(true, createCardForm);
+
+  createNewCardApi(cardTitleInput.value, cardImageInput.value)
+    .then((card) => {
+      const newCard = createNewCard(
+        card,
+        {
+          removeCard,
+          toggleLikeCallback,
+          openImagePopup,
+          userId: sessionUserId
+        }
+      );
+
+      if (!newCard) {
+        console.error('Ошибка: карточка не создана');
+        return;
+      }
+
+      appendCardToContainer(newCard, true);
+      createCardForm.reset();
+      closeModal(createCardPopup);
+    })
+    .catch((err) => {
+      console.error('Ошибка при создании карточки:', err);
+      // Можно добавить уведомление пользователю
+    })
+    .finally(() => renderLoading(false, createCardForm));
+}
+
+// Обработчик отправки формы обновления аватара
 function handleEditAvatarSubmit(event) {
   event.preventDefault();
   renderLoading(true, avatarEditForm);
@@ -130,10 +138,14 @@ function handleEditAvatarSubmit(event) {
       avatarEditForm.reset();
       closeModal(avatarEditPopup);
     })
-    .catch(console.error)
+    .catch((err) => {
+      console.error('Ошибка при обновлении аватара:', err);
+      // Можно добавить уведомление пользователю
+    })
     .finally(() => renderLoading(false, avatarEditForm));
 }
 
+// Открытие попапа редактирования профиля
 editProfileButton.addEventListener('click', () => {
   profileNameInput.value = profileHeader.textContent;
   profileAboutInput.value = profileSubtitle.textContent;
@@ -141,18 +153,21 @@ editProfileButton.addEventListener('click', () => {
   openModal(profileEditPopup);
 });
 
+// Открытие попапа добавления карточки
 addNewCardButton.addEventListener('click', () => {
   createCardForm.reset();
   clearValidation(createCardForm, validationConfig);
   openModal(createCardPopup);
 });
 
+// Открытие попапа редактирования аватара
 userAvatar.addEventListener('click', () => {
   avatarEditForm.reset();
   clearValidation(avatarEditForm, validationConfig);
   openModal(avatarEditPopup);
 });
 
+// Закрытие попапов по кнопке
 closePopupButtonsList.forEach((button) => {
   const popup = button.closest('.popup');
   button.addEventListener('click', () => {
@@ -162,10 +177,12 @@ closePopupButtonsList.forEach((button) => {
   });
 });
 
+// Назначение обработчиков событий
 profileEditForm.addEventListener('submit', handleProfileSubmit);
 createCardForm.addEventListener('submit', handleAddCardSubmit);
 avatarEditForm.addEventListener('submit', handleEditAvatarSubmit);
 
+// Загрузка данных пользователя и карточек
 Promise.all([fetchUserData(), fetchInitialCards()])
   .then(([userData, initialCards]) => {
     sessionUserId = userData._id;
@@ -185,8 +202,11 @@ Promise.all([fetchUserData(), fetchInitialCards()])
       );
       appendCardToContainer(newCard);
     });
-    
   })
-  .catch(console.error);
+  .catch((err) => {
+    console.error('Ошибка при загрузке данных:', err);
+    // Можно добавить уведомление пользователю
+  });
 
+// Включение валидации форм
 enableValidation(validationConfig);

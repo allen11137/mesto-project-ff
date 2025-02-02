@@ -1,5 +1,27 @@
+// validation.js
 
-export { clearValidation, enableValidation };
+// Функция для валидации URL
+
+const validateUrl = (form, input, validationConfig) => {
+  const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+  let errorMessage = "";
+
+  console.log("URL input value:", input.value); // Логируем значение input
+
+  if (input.value.trim() !== "" && !urlPattern.test(input.value.trim())) {
+    errorMessage = "Введите корректный URL.";
+    console.log("URL validation failed for:", input.value); // Логируем, если URL не совпал
+  }
+
+  input.setCustomValidity(errorMessage); // Устанавливаем ошибку (или очищаем её)
+  /*input.reportValidity(); // Принудительно вызываем проверку валидации браузером */
+
+  if (errorMessage) {
+    displayInputError(form, input, errorMessage, validationConfig);
+  } else {
+    resetInputError(form, input, validationConfig);
+  }
+};
 
 const enableValidation = (validationConfig) => {
   const forms = Array.from(document.querySelectorAll(validationConfig.formSelector));
@@ -37,38 +59,36 @@ const resetInputError = (form, input, validationConfig) => {
 };
 
 const validateInput = (form, input, validationConfig) => {
-  const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
-  const minLength = input.getAttribute("minlength") || 2;
-  const maxLength = input.getAttribute("maxlength") || 200;
-
-  if (input.type === "url") {
-    
-    if (!validateUrl(input)) {
-      input.setCustomValidity("Введите URL.");
-    } else {
-      input.setCustomValidity("");
-    }
+  if (input.type === "url" || input.classList.contains("url-input")) {
+    validateUrl(form, input, validationConfig); // Вызов validateUrl
   } else {
-   
+    const pattern = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
+    const minLength = parseInt(input.getAttribute("minlength")) || 2;
+    const maxLength = parseInt(input.getAttribute("maxlength")) || 200;
+
+    let errorMessage = "";
+
+    console.log("Input value:", input.value); // Логируем значение input
+
     if (input.value.length < minLength) {
-      input.setCustomValidity(`Текст должен быть не короче ${minLength} символов.`);
+      errorMessage = `Текст должен быть не короче ${minLength} символов.`;
     } else if (input.value.length > maxLength) {
-      input.setCustomValidity(`Текст должен быть не длиннее ${maxLength} символов.`);
-    } else if (!pattern.test(input.value)) {
-      input.setCustomValidity("Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.");
-    } else {
-      input.setCustomValidity("");
+      errorMessage = `Текст должен быть не длиннее ${maxLength} символов.`;
+    } else if (input.value.trim() !== "" && !pattern.test(input.value.trim())) {
+      errorMessage = "Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.";
+      console.log("Pattern validation failed for:", input.value); // Логируем, если паттерн не совпал
     }
-  }
 
-  if (input.validationMessage) {
-    displayInputError(form, input, input.validationMessage, validationConfig);
-  } else {
-    resetInputError(form, input, validationConfig);
+    input.setCustomValidity(errorMessage); // Устанавливаем ошибку (или очищаем её)
+    /*input.reportValidity(); // Принудительно вызываем проверку валидации браузером */
+
+    if (errorMessage) {
+      displayInputError(form, input, errorMessage, validationConfig);
+    } else {
+      resetInputError(form, input, validationConfig);
+    }
   }
 };
-
-
 
 const initializeFormValidation = (form, validationConfig) => {
   const inputs = Array.from(form.querySelectorAll(validationConfig.inputSelector));
@@ -95,4 +115,4 @@ const updateButtonState = (inputs, submitButton, validationConfig) => {
   }
 };
 
-
+export { clearValidation, enableValidation, validateUrl };
